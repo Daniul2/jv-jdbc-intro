@@ -1,7 +1,6 @@
 package mate.academy.dao.impl;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,22 +12,17 @@ import mate.academy.dao.BookDao;
 import mate.academy.exception.DataProcessingException;
 import mate.academy.lib.Dao;
 import mate.academy.model.Book;
+import mate.academy.util.ConnectionUtil; // <-- IMPORT THE UTILITY CLASS
 
 @Dao
 public class BookDaoImpl implements BookDao {
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/bookstore?serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "qwerty12345@";
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
+    // REMOVED hardcoded credentials and the private getConnection() method
 
     @Override
     public Book create(Book book) {
         String sql = "INSERT INTO books (title, price) VALUES (?, ?)";
-        try (Connection conn = getConnection();
+        // Use ConnectionUtil to get the connection
+        try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql,
                         Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, book.getTitle());
@@ -48,7 +42,8 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Optional<Book> findById(Long id) {
         String sql = "SELECT * FROM books WHERE id = ?";
-        try (Connection conn = getConnection();
+        // Use ConnectionUtil to get the connection
+        try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
@@ -65,7 +60,8 @@ public class BookDaoImpl implements BookDao {
     public List<Book> findAll() {
         List<Book> books = new ArrayList<>();
         String sql = "SELECT * FROM books";
-        try (Connection conn = getConnection();
+        // Use ConnectionUtil to get the connection
+        try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -80,7 +76,8 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book update(Book book) {
         String sql = "UPDATE books SET title = ?, price = ? WHERE id = ?";
-        try (Connection conn = getConnection();
+        // Use ConnectionUtil to get the connection
+        try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, book.getTitle());
             ps.setBigDecimal(2, book.getPrice());
@@ -95,7 +92,8 @@ public class BookDaoImpl implements BookDao {
     @Override
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM books WHERE id = ?";
-        try (Connection conn = getConnection();
+        // Use ConnectionUtil to get the connection
+        try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -105,10 +103,13 @@ public class BookDaoImpl implements BookDao {
     }
 
     private Book parseBook(ResultSet rs) throws SQLException {
-        return new Book(
-                rs.getLong("id"),
-                rs.getString("title"),
-                rs.getBigDecimal("price")
-        );
+        Book book = new Book();
+        book.setId(rs.getLong("id"));
+        book.setTitle(rs.getString("title"));
+        book.setPrice(rs.getBigDecimal("price"));
+        // I noticed your Book model didn't have a constructor for all fields,
+        // so I changed this part to use setters for better compatibility.
+        // If you add the Book(id, title, price) constructor, your original code works too.
+        return book;
     }
 }
