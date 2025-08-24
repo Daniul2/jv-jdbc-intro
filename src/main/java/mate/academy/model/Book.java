@@ -7,18 +7,15 @@ public class Book {
     private String title;
     private BigDecimal price;
 
-    // Порожній конструктор (потрібен для DAO/інжектора/ORM)
     public Book() {
     }
 
-    // Конструктор з усіма параметрами
     public Book(Long id, String title, BigDecimal price) {
         this.id = id;
         this.title = title;
         this.price = price;
     }
 
-    // Гетери та сетери
     public Long getId() {
         return id;
     }

@@ -3,26 +3,31 @@ package mate.academy.util;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class ConnectionUtil {
-    private static final String URL = "jdbc:mysql://localhost:3306/bookdb?serverTimezone=UTC";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "qwerty12345@";
-    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String DB_URL_PROPERTY = "db.url";
+    private static final String DB_USER_PROPERTY = "db.user";
+    private static final String DB_PASSWORD_PROPERTY = "db.password";
+    private static final String DB_DRIVER_PROPERTY = "db.driver";
+    private static final Properties dbProperties;
 
     static {
+        dbProperties = new Properties();
         try {
-            Class.forName(DRIVER);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Can't load JDBC driver", e);
+            dbProperties.load(ConnectionUtil.class.getClassLoader()
+                    .getResourceAsStream("db.properties"));
+            Class.forName(dbProperties.getProperty(DB_DRIVER_PROPERTY));
+        } catch (Exception e) {
+            throw new RuntimeException("Can't load database properties from file", e);
         }
     }
 
-    public static Connection getConnection() {
-        try {
-            return DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        } catch (SQLException e) {
-            throw new RuntimeException("Can't connect to DB", e);
-        }
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(
+                dbProperties.getProperty(DB_URL_PROPERTY),
+                dbProperties.getProperty(DB_USER_PROPERTY),
+                dbProperties.getProperty(DB_PASSWORD_PROPERTY)
+        );
     }
 }
