@@ -25,7 +25,6 @@ public class Injector {
         }
     }
 
-    // This is the static method that Main.java is looking for on line 10
     public static Injector getInstance(String mainPackageName) {
         if (injectors.containsKey(mainPackageName)) {
             return injectors.get(mainPackageName);
@@ -35,7 +34,6 @@ public class Injector {
         return injector;
     }
 
-    // This is the instance method that Main.java is looking for on line 13
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);

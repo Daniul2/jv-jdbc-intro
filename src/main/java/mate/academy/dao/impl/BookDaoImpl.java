@@ -12,16 +12,14 @@ import mate.academy.dao.BookDao;
 import mate.academy.exception.DataProcessingException;
 import mate.academy.lib.Dao;
 import mate.academy.model.Book;
-import mate.academy.util.ConnectionUtil; // <-- IMPORT THE UTILITY CLASS
+import mate.academy.util.ConnectionUtil;
 
 @Dao
 public class BookDaoImpl implements BookDao {
-    // REMOVED hardcoded credentials and the private getConnection() method
 
     @Override
     public Book create(Book book) {
         String sql = "INSERT INTO books (title, price) VALUES (?, ?)";
-        // Use ConnectionUtil to get the connection
         try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql,
                         Statement.RETURN_GENERATED_KEYS)) {
@@ -42,7 +40,6 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Optional<Book> findById(Long id) {
         String sql = "SELECT * FROM books WHERE id = ?";
-        // Use ConnectionUtil to get the connection
         try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
@@ -60,7 +57,6 @@ public class BookDaoImpl implements BookDao {
     public List<Book> findAll() {
         List<Book> books = new ArrayList<>();
         String sql = "SELECT * FROM books";
-        // Use ConnectionUtil to get the connection
         try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
@@ -76,7 +72,6 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book update(Book book) {
         String sql = "UPDATE books SET title = ?, price = ? WHERE id = ?";
-        // Use ConnectionUtil to get the connection
         try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, book.getTitle());
@@ -92,7 +87,6 @@ public class BookDaoImpl implements BookDao {
     @Override
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM books WHERE id = ?";
-        // Use ConnectionUtil to get the connection
         try (Connection conn = ConnectionUtil.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
@@ -107,9 +101,6 @@ public class BookDaoImpl implements BookDao {
         book.setId(rs.getLong("id"));
         book.setTitle(rs.getString("title"));
         book.setPrice(rs.getBigDecimal("price"));
-        // I noticed your Book model didn't have a constructor for all fields,
-        // so I changed this part to use setters for better compatibility.
-        // If you add the Book(id, title, price) constructor, your original code works too.
         return book;
     }
 }
